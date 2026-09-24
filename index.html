@@ -1,1 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<title>BusTrack WB</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f2f5f7;
+}
+
+header {
+    text-align: center;
+    background: #1565c0;
+    color: white;
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.search-box,
+.add-box {
+    background: white;
+    padding: 15px;
+    margin: 20px 0;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #ccc;
+}
+
+input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 6px 0;
+    border: 1px solid #aaa;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 8px;
+    background: #1565c0;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.add-button {
+    background: #168a3a;
+    width: 100%;
+}
+
+.route {
+    background: white;
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px #ccc;
+}
+
+.route h2 {
+    color: #0d47a1;
+    margin-top: 0;
+}
+
+.bus {
+    background: #eef5ff;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    border-left: 5px solid #1565c0;
+}
+
+.stops {
+    margin-top: 8px;
+    line-height: 1.6;
+}
+
+.no-result {
+    display: none;
+    text-align: center;
+    color: red;
+    font-size: 18px;
+}
+
+.note {
+    font-size: 13px;
+    color: #666;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>🚌 BusTrack WB</h1>
+    <p>West Bengal Bus Route Information</p>
+</header>
+
+<div class="search-box">
+
+    <h2>🔍 Search Bus</h2>
+
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Bus Number / Bus Name / Route">
+
+    <button onclick="searchBus()">Search</button>
+
+</div>
+
+
+<div class="add-box">
+
+    <h2>➕ Add New Bus</h2>
+
+    <p class="note">
+        নতুন Bus-এর তথ্য এখানে যোগ করতে পারো।
+    </p>
+
+    <input id="busNumber" placeholder="Bus Number">
+
+    <input id="busName" placeholder="Bus Name">
+
+    <input id="from" placeholder="From">
+
+    <input id="to" placeholder="To">
+
+    <input id="departure" placeholder="Departure Time">
+
+    <input id="arrival" placeholder="Arrival Time">
+
+    <input id="stops"
+           placeholder="Stops যেমন: Onda → Bishnupur">
+
+    <button class="add-button" onclick="addBus()">
+        ➕ Add Bus
+    </button>
+
+</div>
+
+
+<p id="noResult" class="no-result">
+    কোনো Bus বা Route পাওয়া যায়নি।
+</p>
+
+
+<div id="busContainer"></div>
+
+
+<script>
+
+let defaultBuses = [
+
+{
+number:"101",
+name:"Maa Kali",
+from:"Jhatiboni",
+to:"Bishnupur",
+departure:"7:00 AM",
+arrival:"8:30 AM",
+stops:"Jhatiboni → Onda → Bishnupur"
+},
+
+{
+number:"107",
+name:"Example Bus 2",
+from:"Jhatiboni",
+to:"Bishnupur",
+departure:"10:00 AM",
+arrival:"11:30 AM",
+stops:"Jhatiboni → Onda → Bishnupur"
+},
+
+{
+number:"102",
+name:"Maa Kali",
+from:"Bishnupur",
+to:"Jhatiboni",
+departure:"9:00 AM",
+arrival:"10:30 AM",
+stops:"Bishnupur → Onda → Jhatiboni"
+},
+
+{
+number:"108",
+name:"Example Bus 2",
+from:"Bishnupur",
+to:"Jhatiboni",
+departure:"1:00 PM",
+arrival:"2:30 PM",
+stops:"Bishnupur → Onda → Jhatiboni"
+},
+
+{
+number:"103",
+name:"Example Bus",
+from:"Bishnupur",
+to:"Taldangra",
+departure:"8:00 AM",
+arrival:"9:30 AM",
+stops:"Bishnupur → Sonamukhi → Taldangra"
+},
+
+{
+number:"109",
+name:"Example Bus 2",
+from:"Bishnupur",
+to:"Taldangra",
+departure:"2:00 PM",
+arrival:"3:30 PM",
+stops:"Bishnupur → Sonamukhi → Taldangra"
+},
+
+{
+number:"104",
+name:"Example Bus",
+from:"Taldangra",
+to:"Bishnupur",
+departure:"10:00 AM",
+arrival:"11:30 AM",
+stops:"Taldangra → Sonamukhi → Bishnupur"
+},
+
+{
+number:"110",
+name:"Example Bus 2",
+from:"Taldangra",
+to:"Bishnupur",
+departure:"4:00 PM",
+arrival:"5:30 PM",
+stops:"Taldangra → Sonamukhi → Bishnupur"
+},
+
+{
+number:"105",
+name:"Example Bus",
+from:"Bankura",
+to:"Bishnupur",
+departure:"7:30 AM",
+arrival:"9:00 AM",
+stops:"Bankura → Onda → Bishnupur"
+},
+
+{
+number:"111",
+name:"Example Bus 2",
+from:"Bankura",
+to:"Bishnupur",
+departure:"12:00 PM",
+arrival:"1:30 PM",
+stops:"Bankura → Onda → Bishnupur"
+},
+
+{
+number:"106",
+name:"Example Bus",
+from:"Bishnupur",
+to:"Bankura",
+departure:"9:30 AM",
+arrival:"11:00 AM",
+stops:"Bishnupur → Onda → Bankura"
+},
+
+{
+number:"112",
+name:"Example Bus 2",
+from:"Bishnupur",
+to:"Bankura",
+departure:"3:00 PM",
+arrival:"4:30 PM",
+stops:"Bishnupur → Onda → Bankura"
+}
+
+];
+
+
+let savedBuses =
+JSON.parse(localStorage.getItem("busTrackWB")) || defaultBuses;
+
+
+function showBuses(list = savedBuses) {
+
+    let container =
+    document.getElementById("busContainer");
+
+    container.innerHTML = "";
+
+    let routes = {};
+
+    list.forEach(function(bus) {
+
+        let route =
+        bus.from + " → " + bus.to;
+
+        if (!routes[route]) {
+            routes[route] = [];
+        }
+
+        routes[route].push(bus);
+
+    });
+
+
+    Object.keys(routes).forEach(function(routeName) {
+
+        let routeDiv =
+        document.createElement("div");
+
+        routeDiv.className = "route";
+
+        routeDiv.innerHTML =
+        "<h2>🚌 " + routeName + "</h2>";
+
+
+        routes[routeName].forEach(function(bus) {
+
+            let busDiv =
+            document.createElement("div");
+
+            busDiv.className = "bus";
+
+            busDiv.innerHTML =
+
+            "<b>Bus Number:</b> " +
+            bus.number + "<br>" +
+
+            "<b>Bus Name:</b> " +
+            bus.name + "<br>" +
+
+            "<b>Departure:</b> " +
+            bus.departure + "<br>" +
+
+            "<b>Arrival:</b> " +
+            bus.arrival +
+
+            "<div class='stops'>" +
+
+            "<b>Stops:</b><br>" +
+
+            bus.stops +
+
+            "</div>";
+
+            routeDiv.appendChild(busDiv);
+
+        });
+
+
+        container.appendChild(routeDiv);
+
+    });
+
+
+    document.getElementById("noResult").style.display =
+    list.length === 0 ? "block" : "none";
+
+}
+
+
+function addBus() {
+
+    let number =
+    document.getElementById("busNumber").value.trim();
+
+    let name =
+    document.getElementById("busName").value.trim();
+
+    let from =
+    document.getElementById("from").value.trim();
+
+    let to =
+    document.getElementById("to").value.trim();
+
+    let departure =
+    document.getElementById("departure").value.trim();
+
+    let arrival =
+    document.getElementById("arrival").value.trim();
+
+    let stops =
+    document.getElementById("stops").value.trim();
+
+
+    if (
+        !number ||
+        !name ||
+        !from ||
+        !to ||
+        !departure ||
+        !arrival ||
+        !stops
+    ) {
+
+        alert("সব তথ্য পূরণ করুন।");
+
+        return;
+    }
+
+
+    let newBus = {
+
+        number:number,
+        name:name,
+        from:from,
+        to:to,
+        departure:departure,
+        arrival:arrival,
+        stops:stops
+
+    };
+
+
+    savedBuses.push(newBus);
+
+
+    localStorage.setItem(
+        "busTrackWB",
+        JSON.stringify(savedBuses)
+    );
+
+
+    showBuses();
+
+
+    document.getElementById("busNumber").value = "";
+    document.getElementById("busName").value = "";
+    document.getElementById("from").value = "";
+    document.getElementById("to").value = "";
+    document.getElementById("departure").value = "";
+    document.getElementById("arrival").value = "";
+    document.getElementById("stops").value = "";
+
+
+    alert("নতুন Bus যোগ হয়েছে।");
+
+}
+
+
+function searchBus() {
+
+    let search =
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase()
+    .trim();
+
+
+    if (search === "") {
+
+        showBuses();
+
+        return;
+    }
+
+
+    let results =
+    savedBuses.filter(function(bus) {
+
+        let text =
+
+        bus.number + " " +
+        bus.name + " " +
+        bus.from + " " +
+        bus.to + " " +
+        bus.stops;
+
+        return text
+        .toLowerCase()
+        .includes(search);
+
+    });
+
+
+    showBuses(results);
+
+}
+
+
+document
+.getElementById("searchInput")
+.addEventListener("keypress", function(event) {
+
+    if (event.key === "Enter") {
+        searchBus();
+    }
+
+});
+
+
+showBuses();
+
+</script>
+
+</body>
+</html>
