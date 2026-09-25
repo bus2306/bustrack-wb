@@ -204,25 +204,29 @@ function showBuses(list = savedBuses) {
 
             busDiv.innerHTML =
 
-            "<b>Bus Number:</b> " +
-            bus.number + "<br>" +
+"<b>Bus Number:</b> " +
+bus.number + "<br>" +
 
-            "<b>Bus Name:</b> " +
-            bus.name + "<br>" +
+"<b>Bus Name:</b> " +
+bus.name + "<br>" +
 
-            "<b>Departure:</b> " +
-            bus.departure + "<br>" +
+"<b>Departure:</b> " +
+bus.departure + "<br>" +
 
-            "<b>Arrival:</b> " +
-            bus.arrival +
+"<b>Arrival:</b> " +
+bus.arrival +
 
-            "<div class='stops'>" +
+"<div class='stops'>" +
 
-            "<b>Stops:</b><br>" +
+"<b>Stops:</b><br>" +
 
-            bus.stops +
+bus.stops +
 
-            "</div>";
+"</div>" +
+
+"<br>" +
+
+"<button onclick=\"editBus('" + bus.number + "')\">✏️ Edit</button>";
 
             routeDiv.appendChild(busDiv);
 
