@@ -159,6 +159,9 @@ button {
 
 let defaultBuses = [];
 
+localStorage.removeItem("busTrackWB") 
+;
+
 let savedBuses =
 JSON.parse(localStorage.getItem("busTrackWB")) || defaultBuses;
 
